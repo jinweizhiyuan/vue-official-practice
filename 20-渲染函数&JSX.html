@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>渲染函数&JSX</title>
+</head>
+<body>
+	<h1>基础</h1>
+	<blockquote>
+		Vue推荐绝大多数情况下使用template来创建你的HTML。然而在一些场景中，你真的需要JavaScript的完全编程能力，这里你可以用 <b>render</b> 函数，它比template更接近编译器。
+		<pre>
+		Vue.component('anchored-heading', {
+			render: function(createElement) {
+				return createElement(
+					'h' + this.level,
+					this.$slots.default
+				)
+			},
+			props: {
+				level: {
+					require: true,
+					type: Number
+				}
+			}
+		})
+		</pre>
+	</blockquote>
+
+	<h1>节点、树及虚拟DOM</h1>
+	<blockquote>
+		每个元素都是一个节点。每片文字也是一个节点。甚至注释也是节点。一个节点就是页面的一部分。就象家谱书一样，每个节点都可以有孩子节点（也就是说每个部分可以包含其它的一些部分）
+	</blockquote>
+	<h2>虚拟DOM</h2>
+	<blockquote>
+		<p>Vue通过建立一个虚拟Dom对真实的DOM发生的变化保持追踪</p>
+		<p>createElement 返回其实不是一个实际的DOM元素。它更准确的名字可能是 createNodeDescription，因为它所包含的信息会告诉Vue页面上需要渲染什么样的节点，及其子节点。我们把这样的节点描述称为虚拟节点(Virtual Node)，也常简写为VNode。虚拟DOM是我们对由Vue组件树建立起来的整个VNode树的称呼。</p>
+	</blockquote>
+
+	<h1>createElement参数</h1>
+	<blockquote>
+		<pre>
+			createElement(
+				//{String | Object | Function}
+				//一个HTML 标签字符串，组件选项对象，或者
+				//解析上述任何一个async 异步函数。 必需参数
+				'div',
+
+				//{Object}
+				//一个包含模板相关属性的数据对象
+				//你可以在template 中使用这些特性。 可选参数
+				{
+
+				},
+				
+				//{String | Araay}
+				//子虚拟节点(VNode)，由 createElement() 构建而成，
+				//也可以使用字符串来生成 文本虚拟节点。 可选参数
+				[
+					'先写一些文字',
+					createElement('h1', '一则头条'),
+					createElement(MyComponent, {
+						props: [
+							someProp: 'foobar'
+						]
+					})
+				]
+			)
+		</pre>
+	</blockquote>
+	<h2>深入Data对象</h2>
+	<blockquote>
+		有一点要注意：正如在模板语法中， v-bind:class 和 v-bind:style，会被特别对待一样，在VNode数据对象中，下列属性名是最高的字段。该对象也允许你绑定普通的HTML特性，就象DOM属性一样，比如 innerHTML (这会取代 v-html 批公)。
+		<pre>
+		{
+			// 和 v-bind:class 一样API
+			// 接收一个字符串、对象或字符串和对象组成的数组
+			'class': {
+				foo: true,
+				bar: false
+			},
+			// 和v-bind:style 一样的API
+			// 接收一个字符串、对象或对象组成的数组
+			style: {
+				color: 'red',
+				fontSize: '14px'
+			}
+			// 普通HTML特性
+			attr: {
+				id: 'foo'
+			},
+			// 组件props
+			props: {
+				myProp: 'bar'
+			},
+			// DOM属性
+			domProps: {
+				innerHTML: 'baz'
+			},
+			// 事件监听器基于 on
+			// 所以不再支持如 v-on:keyup.enter 修饰器
+			// 需要手动匹配 keyCode
+			on: {
+				click: this.clickHandler
+			},
+			// 仅用于组件，用于监听原生事件，而不是组件内部使用
+			// vm.$emit 触发事件
+			nativeOn: {
+				click: this.nativeClickHandler
+			},
+			// 自定义指令。注意，你无法对 binding 中的 oldValue
+			// 赋值，因为Vue已经自动为你进行了同步
+			directives: [
+				{
+					name: 'my-custom-directive',
+					vlaue: '2',
+					express: '1+1',
+					arg: 'foo',
+					modifiers: {
+						bar: true
+					}
+				}
+			]，
+			// 作用域插槽格式
+			// {name: props => VNode | Array<VNode>}
+			scopedSlots: {
+				default: props => createElement('span', props.text)
+			},
+			// 如果组件是其它组件的子组件，需为插槽指定名称
+			slot: 'name-of-slot',
+			// 其它特殊项层属性
+			key: 'myKey',
+			ref: 'myRef',
+			// 如果在渲染函数中向多个元素都应用了相同的ref名
+			// 那么 $refs.myRef 会变成一个数组
+			refInfor: true
+		}
+		</pre>
+	</blockquote>
+	<h2>完整示例</h2>
+	<pre>
+		var getChildrenTextContent = function(children) {
+			return children.map(function(node) {
+				return node.children
+					? getChildrenTextContent(node.children)
+					: node.text
+			})
+		}
+
+		Vue.component('anchored-heading', {
+			render: function(createElement) {
+				var headingId = getChildrenTextContent(this.$slots.default)
+					.toLowerCase()
+					.replace(/\W+/g, '-')
+					.replace(/(^\-|-$)/g, '')
+
+				return createElement(
+					'h' + headingId,
+					[
+						createElement('a', {
+							attrs: {
+								name: headingId,
+								href: '#' + headingId
+							}
+						})
+					]
+				)
+			},
+			props: {
+				level: {
+					type: Number,
+					required: true
+				}
+			}
+		})
+	</pre>
+	<h2>约束</h2>
+	<blockquote>
+		<b>VNodes 必须唯一</b>
+		下面的 render function 是无效的：
+		<pre>
+			render: function(createElement) {
+				var myParagraphVNode = createElement('p', 'h1')
+				return createElement('div', [
+					// 错误一重复物VNode
+					myParagraphVNode, myParagraphVNode
+				])
+			}
+		</pre>
+		如果你需要重复很多次元素/组件，可以使用工厂函数来实现
+		<pre>
+			render: function(createElement) {
+				return createElement('div', 
+					Array.apply(null, {length: 20}).map(function() {
+						return createElement('p', 'h1')
+					})
+				)
+			}
+		</pre>
+	</blockquote>
+
+	<h1>使用JavaScript 代替模板功能</h1>
+	<h2>v-if 和 v-for</h2>
+	<blockquote>
+		只要在原生的JavaScript 中可以轻松完成的操作，VUe的render函数就不会提供专有的替代方法。比如，在template中使用的 v-if 和 v-for
+		<pre>
+			<ul v-if="items.length">
+				<li v-for="item in items">{{ item.name }}</li>
+			</ul>
+			<p v-else>No items found.</p>
+		</pre>
+		这些都会在render函数中被JavaScript的if/else 和 map 重写：
+		<pre>
+			props: ['items'],
+			render: function(createElement) {
+				if (items.length) {
+					return createElement('ul', this.items.map(function(item) {
+						return createElement('li', item.name)
+					}))
+				} else {
+					return createElement('p', 'No items found.')
+				}
+			}
+		</pre>
+	</blockquote>
+	<h2>v-model</h2>
+	<blockquote>
+		render函数中没有与v-model的直接对就 - 你必须自己实现相应的逻辑
+		<pre>
+		props: ['value'],
+		render: function(createElement) {
+			var self = this;
+			return createElement('input', {
+				domProps: {
+					value: self.value
+				},
+				on: {
+					input: function(event) {
+						self.$emit('input', event.target.value)
+					}
+				}
+			})
+		}
+		</pre>
+	</blockquote>
+	<h2>事件&按键修饰符</h2>
+	<blockquote>
+		<pre>
+			.passive          &
+			.caature          !
+			.once             ~
+			.capture.onceor   ~!
+			.once.capture
+		</pre>
+	</blockquote>
+	<h2>插槽</h2>
+	<blockquote>
+		<ul>
+			<li>可以通过 this.$slots 访问静态插槽的内容，得到的是一个VNodes数组</li>
+			<li>通过 this.$scopedSlots 访问作用域插槽，得到的是一个返回VNodes的函数</li>
+		</ul>
+	</blockquote>
+
+	<h1>函数式组件</h1>
+	<blockquote>
+		之前创建的锚点标题比较简单，没有管理或者监听任何传递给它的状态，也没有生命周期方法。它只是一个接收参数的函数。 在这个例子中，我们标记组件为 functional，这意味它是无状态(没有响应式数据)，无实例(没有this上下文)
+		<pre>
+			Vue.component('my-component', {
+				functional: true,
+				// Props 可选
+				props: {
+					// ...
+				},
+				// 为了弥补缺少的实例
+				// 提供了第二个参数为上下文
+				render: function(createElement, context) {
+					// ...
+				}
+			})
+		</pre>
+		在2.5.0及以上版本中，如果你使用了单文件组件，那么基于模板的函数式组件可以这样声明：<br />
+		<xmp>
+			<template functional>
+			</template>
+		</xmp>
+	</blockquote>
+	<h2>向子元素或子组件传递特性和事件</h2>
+	<blockquote>
+		在普通组件中，没有被定义为prop的特性会自动添加到组件的根元素上，将现有的同名特性替换成与其智能合并。
+		<p>然而函数式组件要求你显式定义访行为：</p>
+		<pre>
+			Vue.component('my-functional-button', {
+				functional: rue,
+				render: function(createElement, context) {
+					return createElement('button', context.data, context.children)
+				}
+			})
+		</pre>
+	</blockquote>
+	<h2>slots() 和 children 对比</h2>
+	<xmp>
+		<my-functional-component>
+		  <p slot="foo">
+		    first
+		  </p>
+		  <p>second</p>
+		</my-functional-component>
+	</xmp>
+	<blockquote>对于这个组件，children 会给你两个段落标签，而 slots().default 只会传递第二个匿名段落标签</blockquote>
+
+	<h1>模板编译</h1>
+	<blockquote>
+		Vue.compile
+	</blockquote>
+</body>
+</html>

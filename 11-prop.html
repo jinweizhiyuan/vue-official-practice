@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Prop</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>Prop的大小写</h1>
+		<blockquote>
+			HTML中的特性名是大小写不敏感的，所以浏览器会把所有大写字符解释为小写字符。这意味着当你使用DOM中的模板时，camelCase(驼峰命名法)的prop名需要使用其等价的kebab-case(短横线分隔名)使唤
+		</blockquote>
+		<xmp>
+			Vue.component('blog-post'), {
+				//在 JavaScript 中是 camelCase的
+				props:['postTitle'],
+				template: '<h3>{{ postTitle }}</h3>'
+			})
+			<!-- 在 HTML 中是 kebab-case 的 -->
+			<blog-post post-title="hello!"></blog-post>
+		</xmp>
+
+		<h1>Prop类型</h1>
+		<xmp>
+			props: {
+				title: String,
+				likes: Number,
+				isPublished: Boolean,
+				commentIds: Array,
+				author: Object
+			}
+		</xmp>
+
+		<h1>传送静态或动态Prop</h1>
+		<xmp>
+			传送一个数字 v-bind:s="1"
+			传递一个布尔值 v-bind:bool="true"
+			传送一个数组 v-bind:arr="[1,2,3]"
+			传递一个对象 v-bind:o="obj"
+			传递一个对象的所有属性 v-bind="obj"
+		</xmp>
+
+		<h1>单向数据流</h1>
+		<xmp>
+			所有的Prop都使得其父子prop之间形成了一个单向下行绑定：父级prop的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外改变父级组件的状态，从而导致你的应用的数据流难以理解。
+			额外的，每次父级组件发生更新时，子组件中的所有prop都将会刷新为最新的值。这意味着你不应该在一个子组件内部改变prop。如果你这样做了，Vue会在浏览器控制台中发出警告。
+			这里常见的试图改变一个prop的情形：
+			1.这个Prop用来传递一个初始值：这个子组件接下来希望将其作为一个本地的prop数据来使用。这种情况下，最好定义一个本地的data属性并将这个prop用作其初始值。
+				props: ['initialCounter'],
+				data: function() {
+					return {
+						counter: this.initialCounter
+					}
+				}
+			2.这个Prop以原始值传入且需要进行转换。在这种情况下，最好使用这个prop的值定义一个计算属性：
+				props: ['size'],
+				computed: {
+					normalizedSize: function() {
+						return this.size.trim().toLowerCase()
+					}
+				}
+		</xmp>
+
+		<h1>Prop验证</h1>
+		<xmp>
+			Vue.component('blog-post', {
+				props: {
+					// 基础的类型检查 ('null' 匹配任何类型)
+					propA: Number,
+					// 多个可能的类型
+					propB: [String, Number],
+					// 必填字段
+					propC: {
+						type: String,
+						required: true
+					},
+					// 带有默认值的当数字
+					propD: {
+						type: Number,
+						default: 100
+					},
+					// 带有默认值的对象
+					propE: {
+						type: Object,
+						// 对象或数组默认值必须从一个函数获取
+						default: function() {
+							return { message: 'hello' }
+						}
+					},
+					// 自定义验证函数
+					propF: {
+						validator: function(value) {
+							// 这个值必须区域下列字符串的一个
+							return ['success', 'warning', 'danger'].indexOf(value) !== -1
+						}
+					}
+				}
+			});
+			当prop验证失败时，（开发环境构建版本的）Vue将会产生一个控制台的警告。
+		</xmp>
+		<h2>类型检查</h2>
+		<xmp>
+			type 可以是下列原生构造函数中的一个：
+			String
+			Number
+			Boolean
+			Array
+			Object
+			Function
+			Symbol
+			Date
+		</xmp>
+		<blockquote>
+			额外的，type还可以是一个自定义的构造函数，并且通过instanceof来进行检查确认。例如，给定下列现成的构造函数：
+			function Person(firstName, lastName) {
+				this.firstName = firstName
+				this.lastName = lastName
+			}
+			你可以使用：
+			Vue.component('blog-post', {
+				props: {
+					author: Person
+				}
+			})
+			来验证author prop的值是否通过new Person创建的。
+		</blockquote>
+	</div>
+
+
+</body>
+</html>

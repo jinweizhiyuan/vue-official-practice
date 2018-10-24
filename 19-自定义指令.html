@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>自定义指令</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style>
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>简介</h1>
+		<blockquote>
+			除了核心功能默认内置指令(v-model 和 v-show)，Vue也允许注册自定义指令。注意，在Vue2.0中，代码复用和抽象主要形式是组件。然而，有的情况下，你仍然需要对普通Dom元素进行底层操作，这里就会乃至自定义指令。
+		</blockquote>
+
+		<h1>钩子函数</h1>
+		<blockquote>
+			<ul>
+				<li>bind</li>
+				<li>insert</li>
+				<li>update</li>
+				<li>componentUpdated</li>
+				<li>unbind</li>
+			</ul>
+		</blockquote>
+
+		<h1>钩子函数参数</h1>
+		<blockquote>
+			<ul>
+				<li>el</li>
+				<li>
+					binding:一个对象包含以下属性
+					<ul>
+						<li>name</li>
+						<li>value</li>
+						<li>oldValue</li>
+						<li>expression</li>
+						<li>arg</li>
+						<li>modifiers</li>
+					</ul>
+				</li>
+				<li>vnode</li>
+				<li>oldVnode</li>
+			</ul>
+		</blockquote>
+		<div id="hook-arguments-example" v-demo:foo.a.b="message"></div>
+
+		<h1>简写函数</h1>
+		<blockquote>
+			在很多时候，你可能想在 bind 和 update 时触发相同的行为，而不关心其它的钩子。比如这样
+			<xmp>
+				Vue.directive('color-swatch', function(el, biding) {
+					el.style.backgroundColor = binging.value
+				})
+			</xmp>
+		</blockquote>
+
+		<h1>对象字面量</h1>
+		<blockquote>
+			如果指令需要多个值，可以传入一个JavaScript对象字面量。记住，指令函数能够接受所有合法的JavaScript表达式：
+			<xmp>
+				<div v-demo2="{color:'white', text: 'hello'}"></div>
+
+				Vue.directive('demo2', {
+					console.log(binging.value.color)
+					console.log(binging.value.text)
+				})
+			</xmp>
+		</blockquote>
+	</div>
+
+	<script>
+		Vue.directive('demo', {
+			bind: function(el, binding, vnode) {
+				var s = JSON.stringify
+				el.innerHTML = 
+					'name: ' + binding.name + '<br>' +
+					'value: ' + binding.value + '<br>' +
+					'expression: ' + binding.expression + '<br>' +
+					'argument: ' + binding.arg + '<br>' +
+					'modifiers: ' + s(binding.modifiers) + '<br>' +
+					'vnode keys: ' + Object.keys(vnode).join(', ')
+			}
+		})
+
+		new Vue({
+			el: '#app',
+			data: {
+				message: 'hello'
+			}
+		})
+	</script>
+</body>
+</html>

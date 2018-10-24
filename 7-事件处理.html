@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>事件处理</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px black dashed;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>事件监听</h1>
+		<button v-on:click="counter += 1">Add 1</button>
+		<p>The button above has been clicked {{ counter }} times</p>
+	</div>
+
+	<div id="app2">
+		<h1>事件处理方法</h1>
+		<button v-on:click="greet">Greet</button>
+	</div>
+
+	<div id="app3">
+		<h1>内联处理器中的方法</h1>
+		<button v-on:click="say('hi', $event)">Say hi</button>
+		<button v-on:click="say('what')">Say what</button>
+	</div>
+
+	<div id="app4">
+		<h1>事件修饰符 .prevent .passive .stop .capture .self .once</h1>
+		<h1>按键修饰符 .esc .tab .delete .enter .left .top .right .bottom</h1>
+		<blockquote>
+			<h2>自动匹配按键修饰符 @keyup.page-down="onPageDown" 事件函数中处理$event.key === "PageDown"</h2>
+		</blockquote>
+		<h1>系统在修饰符 .ctrl .alt .shift .meta</h1>
+		<blockquote>
+			<h2>.exact修饰符 控制精确的系统修饰符组合触发的事件</h2>
+			<h2>鼠标按钮修饰符 .left .right .middle</h2>
+		</blockquote>
+	</div>
+
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				counter: 0
+			}
+		});
+
+		var app2 = new Vue({
+			el: '#app2',
+			data: {
+				name: 'vue.js'
+			},
+			methods: {
+				greet: function(event) {
+					alert('Hello ' + this.name + '!');
+					//event 是原生Dom事件
+					if (event) {
+						alert(event.target.tagName);
+					}
+				}
+			}
+		});
+
+		var app3 = new Vue({
+			el: '#app3',
+			methods: {
+				say: function(message) {
+					console.log(arguments);
+					alert(message);
+				}
+			}
+		});
+	</script>
+</body>
+</html>

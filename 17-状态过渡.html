@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>状态过渡</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/TweenMax.min.js"></script>
+	<script type="text/javascript" src="js/tween.js"></script>
+	<script type="text/javascript" src="js/colorjs.js"></script>
+	<style>
+		[id^=app] {
+			border: 1px dashed black;
+		}
+
+		.example-7-color-preview {
+		  display: inline-block;
+		  width: 50px;
+		  height: 50px;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<pre>
+			<h1>状态过渡</h1>
+Vue的过渡系统提供了非常多简单的方法设置进入、离开和列表的动效。那么对于数据元素本身的动效呢,比如：
+			<ul>
+				<li>数字和运算</li>
+				<li>颜色的显示</li>
+				<li>SVG节点的位置</li>
+				<li>元素的大小和其他的属性</li>
+			</ul>
+		</pre>
+
+		<h2>状态动画与侦听器</h2>
+		<input type="number" v-model.number="number" step="20">
+		<p>{{ animatedNumber }}</p>
+
+		<input type="text"
+			v-model="colorQuery"
+			v-on:keyup.enter="updateColor"
+			placeholder="Enter a color" 
+		>
+		<button v-on:click="updateColor">Update</button>
+		<p>preview</p>
+		<span
+			v-bind:style="{backgroundColor: tweenedCSSColor}"
+			class="example-7-color-preview"
+		></span>
+		<p>{{ tweenedCSSColor }}</p>
+	</div>
+
+	<div id="app2">
+		<h2>把过渡放到组件里</h2>
+		<input type="number" v-model.number="firstNumber" step="20">
+		<input type="number" v-model.number="secondNumber" step="20">
+		{{ result }}
+		<p>
+			<animated-integer v-bind:value="firstNumber"></animated-integer> + 
+			<animated-integer v-bind:value="secondNumber"></animated-integer> =
+			<animated-integer v-bind:value="result"></animated-integer>
+		</p>
+	</div>
+
+	<script>
+		var Color = net.brehaut.Color
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				number: 0,
+				tweenNumber: 0,
+
+				colorQuery: '',
+				color: {
+					red: 0,
+					green: 0,
+					blue: 0,
+					alpha: 1
+				},
+				tweenedColor: {}
+			},
+			created: function() {
+				this.tweenedColor = Object.assign({}, this.color)
+			},
+			watch: {
+				number: function(newValue) {
+					TweenLite.to(this.$data, 0.5, { tweenNumber: newValue})
+				},
+
+				color: function() {
+					function animate() {
+						if (TWEEN.update()) {
+							requestAnimationFrame(animate)
+						}
+					}
+
+					new TWEEN.Tween(this.tweenedColor)
+						.to(this.color, 750)
+						.start()
+
+					animate()
+				}
+			},
+			computed: {
+				animatedNumber: function() {
+					return this.tweenNumber.toFixed(0)
+				},
+
+				tweenedCSSColor: function() {
+					return new Color({
+						red: this.tweenedColor.red,
+						green: this.tweenedColor.green,
+						blue: this.tweenedColor.blue,
+						alpha: this.tweenedColor.alpha
+					}).toCSS()
+				}
+			},
+			methods: {
+				updateColor: function() {
+					this.color = new Color(this.colorQuery).toRGB()
+					this.colorQuery = ''
+				}
+			}
+		});
+
+		Vue.component('animated-integer', {
+			template: '<span>{{ tweeningValue }}</span>',
+			props: {
+				value: {
+					type: Number,
+					required: true
+				}
+			},
+			data: function() {
+				return {
+					tweeningValue: 0
+				}
+			},
+			watch: {
+				value: function(newValue, oldValue) {
+					this.tween(oldValue, newValue)
+				}
+			},
+			mounted: function() {
+				this.tween(0, this.value)
+			},
+			methods: {
+				tween: function(startValue, endValue) {
+					var vm = this
+					function animate() {
+						if (TWEEN.update()) {
+							requestAnimationFrame(animate)
+						}
+					}
+
+					new TWEEN.Tween({tweeningValue: startValue})
+						.to({tweeningValue: endValue}, 500)
+						.onUpdate(function(object) {
+							vm.tweeningValue = (endValue*object).toFixed(0)
+						})
+						.start()
+
+					animate()
+				}
+			}
+		})
+
+		var app2 = new Vue({
+			el: '#app2',
+			data: {
+				firstNumber: 20,
+				secondNumber: 40
+			},
+			computed: {
+				result: function() {
+					return this.firstNumber + this.secondNumber
+				}
+			}
+		})
+	</script>
+</body>
+</html>

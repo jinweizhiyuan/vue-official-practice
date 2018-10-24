@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>组件基础</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+
+		.demo-alert-box {
+		    padding: 10px 20px;
+		    background: #f3beb8;
+		    border: 1px solid #f09898;
+		}
+
+		.tab-button {
+		  padding: 6px 10px;
+		  border-top-left-radius: 3px;
+		  border-top-right-radius: 3px;
+		  border: 1px solid #ccc;
+		  cursor: pointer;
+		  background: #f0f0f0;
+		  margin-bottom: -1px;
+		  margin-right: -1px;
+		}
+		.tab-button:hover {
+		  background: #e0e0e0;
+		}
+		.tab-button.active {
+		  background: #e0e0e0;
+		}
+		.tab {
+		  border: 1px solid #ccc;
+		  padding: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>基础示例</h1>
+		<blockquote>
+			组件 data 必须是一个函数
+		</blockquote>
+		<button-counter></button-counter>
+
+		<h1>组件的复用</h1>
+		<button-counter></button-counter>
+		<button-counter></button-counter>
+
+		<h1>通过Prop向子组件传递数据</h1>
+		<blog-post
+			v-for="post in posts"
+			v-bind:key="post.id"
+			v-bind:title="post.title"
+		></blog-post>
+
+		<h1>单个根元素</h1>
+		<blockquote>
+			every component must have a single root element(每个组件必须只有一个根元素)
+		</blockquote>
+		<blog-post2
+			v-for="post in posts"
+			v-bind:key="post.id"
+			v-bind:post="post"
+		></blog-post2>
+
+		<h1>通过事件向父级组件发送消息</h1>
+		<div id="blog-poss-events-demo">
+			<div v-bind:style="{fontSize: postFontSize + 'em'}">
+				<blog-post3
+					v-for="post in posts"
+					v-bind:key="post.id"
+					v-bind:post="post"
+					v-on:ajust-font="ajustFontSize"
+				></blog-post3>
+			</div>
+		</div>
+
+		<h4>在组件上使用v-model</h4>
+		<custom-input
+			v-bind:value="searchText"
+			v-on:input="searchText=$event"
+		></custom-input>
+		简化绑定 <custom-input v-model="searchText"></custom-input>
+
+		<h1>使用插槽分发内容</h1>
+		<alert-box>Something bad happended.</alert-box>
+
+		<h1>动态组件</h1>
+		<div id="dynamic-component-demo" class="demo">
+			<button
+				v-for="tab in tabs"
+				v-bind:key="tab"
+				v-bind:class="['tab-button', {active: currentTab == tab}]"
+				v-on:click="currentTab = tab"
+			>{{ tab }}</button>
+			<component v-bind:is="currentTabComponent" class="tab"></component>
+		</div>
+
+		<h1>解析DOM模板时的注意事项</h1>
+		<blockquote>
+			<p>有些HTML元素，诸如：&lt;ul&gt; &lt;ol&gt; &lt;table&gt; &lt;select&gt;，对于哪些元素可以出现在其内部是有严格限制的。而这些元素，诸如：&lt;li&gt; &lt;tr&gt; &lt;option&gt;，只能出现在其它某些特定元素的内部。</p>
+			<p>
+				&lt;table&gt;
+					&lt;blog-post-row&gt;&lt;/blog-post-row&gt;
+				&lt;/table&gt;
+				这个自定义组件&lt;blog-post-orw&gt;会被作为无效的内容提升到外部，并导致最终渲染结果出错。幸好这个特殊的is特性给了我们一个变通的方法：<br />
+				&lt;table&gt;
+				&lt;tr is="blog-post-row"&gt;&lt;/tr&gt;
+				&lt;/table&gt;
+			</p>
+			<p>
+				如果我们从以下来源使用模板的话，这条限制是不存在的：
+				<ul>
+					<li>字符串（例如：template:'...'）</li>
+					<li>单文件组件(.vue)</li>
+					<li>&lt;script type="text/x-template"&gt;</li>
+				</ul>
+			</p>
+		</blockquote>
+	</div>
+
+	<script>
+		Vue.component('button-counter', {
+			data: function() {
+				return {
+					count: 0
+				}
+			},
+			template: '<button v-on:click="count++">You click me {{ count }} times.</button>'
+		});
+
+		Vue.component('blog-post', {
+			props: ['title'],
+			template: '<h3>{{ title }}</h3>'
+		});
+
+		Vue.component('blog-post2', {
+			props: ['post'],
+			template: '<div class="blog-post"><h3>{{post. title }}</h3><div v-html="post.content"></div></div>'
+		});
+
+		Vue.component('blog-post3', {
+			props: ['post'],
+			template: '<div class="blog-post"><h3>{{post. title }}</h3><button v-on:click="$emit(\'ajust-font\', 0.1)">Enlarge font size</button><button v-on:click="$emit(\'ajust-font\', -0.1)">Decrease font size</button><div v-html="post.content"></div></div>'
+		});
+
+		Vue.component('custom-input', {
+			props: ['value'],
+			template: '<input v-bind:value="value" v-on:input="$emit(\'input\', $event.target.value)" />'
+		});
+
+		Vue.component('alert-box', {
+			template: '<div class="demo-alert-box"><strong>Error!</strong><slot></slot></div>'
+		});
+
+		Vue.component('tab-home', {
+			template: '<div>Home component</div>'
+		});
+
+		Vue.component('tab-posts', {
+			template: '<div>Posts component</div>'
+		});
+
+		Vue.component('tab-archive', {
+			template: '<div>Archive component</div>'
+		});
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				posts: [
+					{id: 1, title:'My journey with Vue', content: '在其父组件中，我们可以通过添加一个 postFontSize 数据属性来支持这个功能'},
+					{id: 2, title:'Blogging with Vue', content: '在其父组件中，我们可以通过添加一个 postFontSize 数据属性来支持这个功能'},
+					{id: 3, title:'Why Vue is so fun', content: '在其父组件中，我们可以通过添加一个 postFontSize 数据属性来支持这个功能'}
+				],
+				postFontSize: 1,
+				searchText: '',
+				currentTab: 'Home',
+				tabs: ['Home', 'Posts', 'Archive']
+			},
+			methods: {
+				ajustFontSize: function(f) {
+					console.log(arguments);
+					this.postFontSize += f;
+				}
+			},
+			computed: {
+				currentTabComponent: function() {
+					return 'tab-' + this.currentTab.toLowerCase()
+				}
+			}
+		});
+	</script>
+</body>
+</html>

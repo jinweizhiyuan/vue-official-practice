@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="../js/EventUtil.js"></script>
+  <script>
+    EventUtil.addHandler(window, 'load', function () {
+            var form = document.forms[0]
+            var elements = form.elements
+            var mybutton = elements['createBtn']
+            var div = document.getElementById('uuid')
+            var data = {}
+            EventUtil.addHandler(mybutton, 'click', function (event) {
+                event = EventUtil.getEvent(event)
+                var target = EventUtil.getTarget(event)
+                var uuid = getUuid()
+                var time = Date.now()
+                // 删除所有子节点
+                while (div.hasChildNodes()) {  
+                    div.removeChild(div.firstChild);  
+                }  
+                data[time] = uuid
+                div.appendChild(document.createTextNode(uuid))
+                // 创建新的历史状态
+                history.pushState({name: time}, '', 'index.html')
+            })
+            // 监听浏览器“后退”（返回上一页）事件
+            EventUtil.addHandler(window, 'popstate', function (event) {
+                event = EventUtil.getEvent(event)
+                var state = event.state
+                if (state) {
+                    console.log(state)
+                }
+            })
+        })
+        // 获取uuid
+        function getUuid () {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0
+                var v = c === 'x' ? r : (r & 0x3 | 0x8)
+                return v.toString(16)
+            }).replace(/-/g, '')
+        }
+    </script>
+</head>
+
+<body>
+  <form action="" method="get">
+    <label for="mybutton">UUID：</label>
+    <input id="mybutton" type="button" value="生成" autofocus name="createBtn">
+  </form>
+  <div id="uuid"></div>
+</body>
+
+</html>
+<!-- ---------------------
+作者：harmsworth2016
+来源：CSDN
+原文：https://blog.csdn.net/harmsworth2016/article/details/80425970
+版权声明：本文为博主原创文章，转载请附上博文链接！ -->

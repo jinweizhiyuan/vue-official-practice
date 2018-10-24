@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>编程式导航</title>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>router.push(location, onComplete?, onAbort?)</h1>
+		<pre>
+			// 字符串
+			router.push('home')
+
+			// 对象
+			router.push({path: 'home'})
+
+			// 命名的路由
+			router.push({name: 'home', params: {userId: 123}})
+
+			// 带查询参数，变成 /register?plan=private
+			router.push({path: 'home', query:{plan: 'private'}})
+		</pre>
+
+		<h1>router.replace(location, onComplete?, onAbort?)</h1>
+
+		<h1>router.go(n)</h1>
+	</div>
+</body>
+</html>

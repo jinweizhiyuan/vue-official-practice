@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>class与style绑定</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style type="text/css">
+		.active {
+			background-color: #a3f2c4;
+		}
+		.text-danger {
+			color: red;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<div class="static"
+			v-bind:class="{active:isActive, 'text-danger':hasError}"
+			v-bind:style="[{color:activeColor},{'text-shadow':shadow},{display:['-webkit-box', '-ms-flexbox', 'flex']}]">
+			hello world
+		</div>
+	</div>
+
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				isActive: true,
+				hasError: false,
+				activeColor: 'yellow',
+				shadow: '2px 2px black'
+			}
+		});
+	</script>
+</body>
+</html>

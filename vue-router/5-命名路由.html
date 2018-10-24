@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>命名路由</title>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<pre>
+			const router = new VueRouter({
+				routes: [
+					{
+						path: '/user/:userId',
+						name: 'user',
+						component: User
+					}
+				]
+			})
+		</pre>
+	</div>
+</body>
+</html>

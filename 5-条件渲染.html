@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>条件渲染</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 2px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<template v-if="ok">
+			<h1>Title</h1>
+			<p>Paragraph 1</p>
+			<p>Paragraph 2</p>
+		</template>
+	</div>
+
+	<div id="app2">
+		<template v-if="loginType==='username'">
+			<label for="">Username</label>
+			<input type="text" placeholder="Enter your name">
+		</template>
+		<template v-else="else">
+			<label for="">Email</label>
+			<input type="text" placeholder="Enter your email address">
+		</template>
+	</div>
+
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				ok: true
+			}
+		});
+
+		var app2 = new Vue({
+			el: '#app2',
+			data: {
+				loginType: 'username'
+			}
+		});
+	</script>
+</body>
+</html>

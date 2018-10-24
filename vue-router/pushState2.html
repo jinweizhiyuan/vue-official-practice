@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>History API</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <ul id="menu">
+      <li><a href="/home">首页</a></li>
+      <li><a href="/about">关于我们</a></li>
+      <li><a href="/blog">博客</a></li>
+      <li><a href="/photos">相册</a></li>
+    </ul>
+    <button id="back">Back</button>
+    <button id="forward">Forward</button>
+    <div>
+      Action: <span id="action"></span>  <br />
+      Url: <span id="url"></span> <br />
+      Description: <span id="description"></span>
+    </div>
+
+    <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+      var act, historyState;
+      var menu = document.querySelectorAll('li a')
+
+      historyState = {
+        home: {
+          description: "我是首页------Index Page"
+        },
+        about: {
+          description: "关于我们------About Page"
+        },
+        blog: {
+          description: "博客首页------Blog Page"
+        },
+        photos: {
+          description: "相册首页------Photos Page"
+        }
+      }
+      
+      for (let i = 0; i < menu.length; i++) {
+        menu[i].addEventListener('click', function(e) {
+          e.preventDefault();
+          var hash = menu[i].getAttribute('href')
+          var key = hash.replace('/', '')
+          act = "点击导航"
+
+          historyState[key].url = key
+
+          history.replaceState(historyState[key], null, hash)
+
+          setStateInfo(historyState[key])
+        })
+      }
+
+      window.addEventListener('popstate', function(event) {
+        var state = history.state || event.state || window.event.state
+        
+        if(state) setStateInfo(state)
+      })
+
+      document.querySelector('#back').addEventListener('click', function() {
+        act = "点击后退按钮"
+        history.back()
+      }, false)
+
+      document.querySelector('#forward').addEventListener('click', function () {
+        act = "点击前进按钮"
+        history.go(1)
+      })
+
+      function setStateInfo(state) {
+        // ajax 处理不同的数据
+        document.querySelector('#action').innerHTML = act;
+        document.querySelector('#url').innerHTML = state.url;
+        document.querySelector('#description').innerHTML = state.description;
+      }
+
+      // 第一次加载进来的时候
+      var path = location.pathname;
+      var arr = path.split('/');
+      var index = arr[arr.length - 1] || 'home'
+
+      arr = "刷新页面";
+      historyState[index].url = index;
+      setStateInfo(historyState[index]);
+      history.replaceState(historyState[index], null, index)
+
+    })
+    </script>
+  </body>
+</html>

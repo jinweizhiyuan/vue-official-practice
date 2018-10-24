@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>响应路由参数变化</title>
+	<script src="../js/vue.js" type="text/javascript"></script>
+	<script src="../js/vue-router.js" type="text/javascript"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<router-view></router-view>
+
+		<h1>响应路由参数变化</h1>
+		<blockquote>
+			<p>
+				当使用路由参数时，例如从/user/foo 导航到 /use/bar，原来组件实例会被复用。因为两个路由都渲染同个组件，比起销毁再创建，利用则显得更加高效。不过，这也意味着组件的生命周期钩子不会再被调用。
+			</p>
+			<p>
+				复用组件时，想对路由参数变化作出响应的话，你可心简单地watch（监测变化）$route 对象
+				<pre>
+					const User = {
+						template: '...',
+						watch: {
+							'$route': function(ro, from) {
+								// 对路由变化作出响应...
+							}
+						}
+					}
+				</pre>
+				或者使用2.2中引入的 beforeRouteUpdate 导航守卫：
+				<pre>
+					const User = {
+						tempalte: '...',
+						beforeRouteUpdate: function(to, from, next) {
+							// react to route changes ...
+							// don't forget to call next()
+						}
+					}
+				</pre>
+			</p>
+		</blockquote>
+
+		<h1>高级匹配模式</h1>
+		<blockquote>
+			vue-route 可以使用 path-to-regexp 作为路径匹配引擎，所以支持很多高级的匹配模式，例如：可选的动态路径参数、匹配零个或多个、一个或多个，甚至是自定义正则匹配。查看它的文档学习高阶的路径匹配，还有这个例子展示vue-router 怎么使用这类匹配。
+		</blockquote>
+
+		<h1>匹配优先级</h1>
+		<blockquote>
+			有时候，同一个路径可以匹配多个路由，此时，匹配的优先级就按照路由的定义顺序：谁先定义的，谁的优先级就最高。
+		</blockquote>
+	</div>
+
+	<script type="text/javascript">
+		const user = { template: '<div>User {{ $route.params.id }}</div>' }
+		const router = new VueRouter({
+			routes: [
+				{path: '/user/:id', component: user}
+			]
+		})
+		var app = new Vue({
+			router
+		}).$mount('#app')
+	</script>
+</body>
+</html>

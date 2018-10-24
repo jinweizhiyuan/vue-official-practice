@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>HTML5 History 模式</title>
+	<script src="../js/vue.js" type="text/javascript"></script>
+	<script src="../js/vue-router.js" type="text/javascript"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<router-view></router-view>
+	</div>
+
+	<script type="text/javascript">
+		var router = new VueRouter({
+			mode: 'history',
+			routes: [
+				{path: '/a', component: {template: '<div>A page with html5 history mode. <router-link to="/b">to b</router-link></div>'}},
+				{path: '/b', component: {template: '<div>B page with html5 history mode</div>'}}
+			]
+		})
+		var app = new Vue({
+			router
+		}).$mount('#app')
+	</script>
+</body>
+</html>

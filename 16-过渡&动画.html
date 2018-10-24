@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>过渡&动画</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<script type="text/javascript" src="js/velocity.min.js"></script>
+	<script type="text/javascript" src="js/lodash.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/animate.css">
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+
+		.v-enter-active, .v-leave-active {
+			transition: opacity .5s ease-in-out;
+		}
+
+		.v-enter, .v-leave-to {
+			opacity: 0;
+		}
+
+		.slide-fade-enter-active {
+			transition: all .3s ease;
+		}
+		.slide-fade-leave-active {
+			transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+		}
+		.slide-fade-enter, .slide-fade-leave-to {
+			transform: translateX(10px);
+			opacity: 0;
+		}
+
+		.bounce-enter-active {
+			animation: bounce-in .5s;
+		}
+		.bounce-leave-active {
+			animation: bounce-in .5s reverse;
+		}
+		@keyframes bounce-in {
+			0% {
+				transform: scale(0);
+			}
+			50% {
+				transform: scale(1.5);
+			}
+			100% {
+				transform: scale(1);
+			}
+		}
+
+		.component-fade-enter-active, .component-fade-leave-active {
+			transition: opacity .3s ease;
+		}
+		.component-fade-enter, .component-fade-leave-to {
+			opacity: 0;
+		}
+
+		.list-item {
+			display: inline-block;
+			margin-right: 10px;
+		}
+		.list-enter-active, .list-leave-active {
+			transition: all 1s;
+		}
+		.list-enter, .list-leave-to {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+
+		.flip-list-move {
+			transition: transform 1s;
+		}
+
+		.list-complete-item {
+			transition: all 1s;
+			display: inline-block;
+			margin-right: 10px;
+		}
+		.list-complete-enter, .list-complete-leave-to {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		.list-complete-leave-active {
+			position: absolute;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>单元素/组件的过渡</h1>
+		<button v-on:click="show=!show">toggle</button>
+		<transition>
+			<span v-if="show">Hello</span>
+		</transition>
+
+		<h2>css过渡</h2>
+		<button v-on:click="show2=!show2">toggle</button>
+		<transition name="slide-fade">
+			<p v-if="show2">hello</p>
+		</transition>
+
+		<h2>css动画</h2>
+		<button v-on:click="show3=!show3">Toggle show</button>
+		<transition name="bounce">
+			<p v-if="show3">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris facilisis enim libero, at lacinia diam fermentum id. Pellentesque habitant morbi tristique senectus et netus.</p>
+		</transition>
+
+		<h2>自定义过渡和动画</h2>
+		<blockquote>
+			他们的优先级高于普通的类名，这对于Vue的过渡系统和其他第三方css动画库，如Animate.css结合使用十分有用。
+		</blockquote>
+		<button v-on:click=show4=!show4>Toggle render</button>
+		<transition
+			name="custom-classes-transition"
+			enter-active-class="animated tada"
+			leave-active-class="animated bounceOutRight"
+		>
+			<p v-if="show4" style="text-align: center;">hello</p>
+		</transition>
+
+		<h2>同时使用过渡和动画</h2>
+		<blockquote>
+			<p>Vue 为了知道过渡的完成，必须设置相应的事件监听器，它可以是 transitionend 或 animationend, 这取决于给元素应用的css规则。如果你使用其中任何一种，Vue以自动识别类型并设置监听。</p>
+			<p>但是，在一些场景中，你需要给同一个元素同时设置两种过度动效，比如 animation很快的触发并完成了，而 transition 效果还没结束，你需要使用 type 特性并设置 animation 或 transition 来明确声明你需要Vue监听的类型。</p>
+		</blockquote>
+
+		<h2>显性的过渡持续时间</h2>
+		<blockquote>
+			<p>在很多情况下，Vue可以自动得出过度效果的完成时机。默认情况下，Vue会等待其在过渡效果的根元素的第一个 tansitionend 或 animationend 事件。然而也可以不这样设定--比如，我们可以拥有一个精心编排的一系列过渡效果，其中一些嵌套的内部元素相比于过渡效果的根元素有延迟的或更长的过渡效果。</p>
+			<p>在这种情况下你可以使用&lt;transition&gt;组件上的duration属性定制一个显性的过渡持续时间（以毫秒计）</p>
+		</blockquote>
+
+		<h2>JavaScript 钩子</h2>
+		<pre>
+			&lt;transition
+				v-on:before-enter="beforeEnter"
+				v-on:enter="enter"
+				v-on:after-enter="afterEnter"
+				v-on:enter-cancelled="enterCancelled"
+
+				v-on:before-leave="beforeLeave"
+				v-on:leave="leave"
+				v-on:after-leave="afterLeave"
+				v-on:leave-cancelled="leaveCancelled"
+			>
+				&lt;!-- ... -->
+			&lt;/transition>
+		</pre>
+		<blockquote>
+			<p>当只用JavaScript过渡的时候，在 enter 和 leave 中必须使用 done 进行回调。否则，它们将被同步调用，过渡会立即完成。</p>
+			<p>推荐对于仅使用JavaScript过渡的元素添加v-bind:class="false",Vue会跳过css的检测。这也可以避免过渡过程中css的影响。</p>
+		</blockquote>
+		<button v-on:click="show5=!show5">Toggle</button>
+		<transition
+			v-on:before-enter="beforeEnter"
+			v-on:enter="enter"
+			v-on:leave="leave"
+			v-bind:css="false"
+		>
+			<p v-if="show5">Demo</p>
+		</transition>
+
+		<h1>初始渲染的过渡</h1>
+		<blockquote>
+			可以通过 apear 特性设置节点在初始渲染的过渡
+		</blockquote>
+
+		<h1>多个元素的过渡</h1>
+		<blockquote>
+			当有相同标签名的元素切换时，需要通过key特性设置唯一的值来标记以让Vue区分它们，否则Vue为了效率只会替换相同标签内部的内容。即使在技术上没有必要，给在&lt;transition>组件中的多个元素设置key是一个更好的实践。
+			<p>同时生效的进入和离开的过渡不能满足所有要求，所以Vue提供了过渡模式</p>
+		</blockquote>
+		<button v-on:click="show6=!show6">Toggle</button>
+		<transition mode="out-in">
+			<button v-if="show6" v-bind:key="show6">Save</button>
+			<button v-else v-bind:key="show6">Edit</button>
+		</transition>
+
+		<h1>多个组件过渡</h1>
+		<input type="radio" value="v-a" v-model="view" id="a"><label for="a">A</label>
+		<input type="radio" value="v-b" v-model="view" id="b"><label for="b">B</label>
+		<transition name="component-fade" mode="out-in">
+			<component v-bind:is="view"></component>
+		</transition>
+
+		<h1>列表的过渡</h1>
+		<h2>列表的进入/离开过渡</h2>
+		<button v-on:click="add">Add</button>
+		<button v-on:click="remove">Remove</button>
+		<transition-group name="list" tag="p">
+			<span v-for="item in items" v-bind:key="item" class="list-item">
+				{{ item }}
+			</span>
+		</transition-group>
+
+		<h2>列表的排序过渡</h2>
+		<blockquote>
+			&lt;transition-group>组件还有一个特别之处。不公可以进入和离开页面，还可心改变定位。要使用这个新功能只需了解新增的v-move特性，它会在元素的改变定位的过程中应用。像之前的类名一样，可以通过name属性来自定义前缀，也可以通过move-class属性手动设置。
+		</blockquote>
+		<button v-on:click="shuffle">Shuffle</button>
+		<transition-group name="flip-list" tag="ul">
+			<li v-for="item in items" v-bind:key="item">
+				{{ item }}
+			</li>
+		</transition-group>
+
+		<button v-on:click="add">Add</button>
+		<button v-on:click="remove">Remove</button>
+		<button v-on:click="shuffle">Shuffle</button>
+		<transition-group name="list-complete" tag="p">
+			<span v-for="item in items" v-bind:key="item" class="list-complete-item">
+				{{ item }}
+			</span>
+		</transition-group>
+
+		<h2>列表的交错过渡</h2>
+		<input type="text" v-model="query">
+		<transition-group
+			name="staggered-fade"
+			tag="ul"
+			v-bind:css="false"
+			v-on:before-enter="beforeEnter2"
+			v-on:enter="enter2"
+			v-on:leave="leave2"
+		>
+			<li
+				v-for="(item, index) in computedList"
+				v-bind:key="item.msg"
+				v-bind:data-index="index"
+			>
+				{{ item.msg }}
+			</li>
+		</transition-group>
+
+		<h1>可复用的过渡</h1>
+		<blockquote>
+			过渡可以通过Vue的组件系统实现复用。要创建一个可复用的过渡组件，你需要做的是将&lt;transition> 或者 &lt;transition-group>作为根组件，然后将子组件放置其中就可以了。
+		</blockquote>
+		<textarea style="width: 100%; height: 300px">
+			Vue.component('my-special-transition', {
+				template: '\
+					<transition\
+						name="my-special-transition"\
+						mode="out-in"\
+						v-on:before-enter="beforeEnter"\
+						v-on:after-enter="afterEnter"\
+					>\
+						<slot></slot>\
+					</transition>\
+				',
+				methods: {
+					beforeEnter: function(el) {},
+					afterEnter: function(el) {}
+				}
+			})
+			函数组件更适合完成这个任务：
+			Vue.component('my-special-transition', {
+				render: function(creatElement, context) {
+					var data = {
+						props: {
+							name: 'my-special-transition',
+							mode: 'out-in'
+						},
+						on: {
+							beforeEnter: function(el) {},
+							afterEnter: function(el) {}
+						}
+					}
+					return createElement('transition', data, context.children)
+				}
+			})
+		</textarea>
+	</div>
+
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				show: false,
+				show2: true,
+				show3: true,
+				show4: true,
+				show5: false,
+				show6: true,
+				view: 'v-a',
+				items: [1,2,3,4,5,6,7,8,9],
+				nextNum: 10,
+				query: '',
+				list: [
+					{msg: 'Bruce Lee'},
+					{msg: 'Jackie Chan'},
+					{msg: 'Chuck Norries'},
+					{msg: 'Jet Li'},
+					{msg: 'Kung Fury'}
+				]
+			},
+			methods: {
+				beforeEnter: function(el) {
+					el.style.opacity = 0
+					el.style.transformOrigin = 'left'
+				},
+				enter: function(el, done) {
+					Velocity(el, {opacity: 1, fontSize: '1.4em'}, {duration: 300})
+					Velocity(el, {fontSize: '1em'}, {complete: done})
+				},
+				leave: function(el, done) {
+					Velocity(el, {translateX: '15px', rotateZ: '50deg'}, {duration:600})
+					Velocity(el, {rotateZ: '100deg'}, {loop: 2})
+					Velocity(el, {
+						rotateZ: '45deg',
+						translateY: '30px',
+						translateX: '30px',
+						opacity: 0
+					}, {complete: done})
+				},
+				randomIndex: function() {
+					return Math.floor(Math.random() * this.items.length)
+				},
+				add: function() {
+					this.items.splice(this.randomIndex(), 0, this.nextNum++)
+				},
+				remove: function() {
+					this.items.splice(this.randomIndex(), 1)
+				},
+				shuffle: function() {
+					this.items = _.shuffle(this.items)
+				},
+				beforeEnter2: function(el) {
+					el.style.opacity = 0
+					el.style.height = 0
+				},
+				enter2: function(el, done) {
+					var delay = el.dataset.index * 150
+					setTimeout(function() {
+						Velocity(
+							el,
+							{opacity:1, height: '1.6em'},
+							{complete: done}
+						)
+					}, delay)
+				},
+				leave2: function(el, done) {
+					var delay = el.dataset.index * 150
+					setTimeout(function() {
+						Velocity(
+							el,
+							{opacity:0, height:0},
+							{complete: done}
+						)
+					}, delay)
+				}
+			},
+			components: {
+				'v-a': {
+					template: '<div>Component A</div>'
+				},
+				'v-b': {
+					template: '<div>Component B</div>'
+				}
+			},
+			computed: {
+				computedList: function() {
+					var vm = this
+					return this.list.filter(function(item) {
+						return item.msg.toLowerCase().indexOf(vm.query.toLowerCase()) !== -1
+					})
+				}
+			}
+		});
+	</script>
+</body>
+</html>

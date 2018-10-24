@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>处理边界情况</title>
+	<script src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style>
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>模板定义的替代品</h1>
+		<h2>内联模板</h2>
+		<my-component id="my-comp">
+			<div>
+				{{ inner }}
+				<p>These are compiled as the component's own template.</p>
+			    <p>Not parent's transclusion content.</p>
+			</div>
+		</my-component>
+
+		<h1>控制更新</h1>
+		<h2>强制更新</h2>
+		<div>{{ arr }}</div>
+		<button v-on:click="arr[0]=111,$forceUpdate()">$forceUpdate 强制更新第一个元素</button>
+
+		<h2>通过v-once 创建低开销的静态组件</h2>
+		<div v-once v-bind:title="title">{{ once }}</div>
+		<button v-on:click="once='two',title='two'">change two</button>
+	</div>
+
+	<script>
+
+		Vue.component('my-component', {
+			data: function() {
+				return {
+					inner: 'inner data'
+				}
+			},
+			template: '#my-comp'
+		});
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				arr: [1,2,3],
+				once: 'once',
+				title: 'one',
+				inner: 'outer data'
+			}
+		});
+	</script>
+</body>
+</html>

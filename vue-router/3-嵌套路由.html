@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>嵌套路由</title>
+	<script src="../js/vue.js" type="text/javascript"></script>
+	<script src="../js/vue-router.js" type="text/javascript"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 1px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<router-view></router-view>
+
+		<b>
+			要注意： 以 / 开头的嵌套路径会被当作根路径。这让你充分的使用嵌套组件而无须设置嵌套的路径。
+		</b>
+	</div>
+
+	<script type="text/javascript">
+		const User = {
+			template: `
+				<div class="user">
+					<h2>User {{ $route.params.id }}</h2>
+					<router-view></router-view>
+				</div>
+			`
+		}
+
+		var router = new VueRouter({
+			routes: [
+				{path: '/user/:id', component: User, children: [
+					{
+						path: '',
+						component: {template: '<div>Default content</div>'}
+					},
+					{
+						// 当 /user/:id/profile 匹配成功
+						// UserProfile 会被渲染在 User 的 <router-view> 中
+						path: 'profile',
+						component: {template: '<div>User Profile</div>'}
+					},
+					{
+						// 当 /user/:id/posts 匹配成功
+						// UserPosts 会被渲染在 User 的 <router-view> 中
+						path: 'posts',
+						component: {template: '<div>User Posts</div>'}
+					}
+				]}
+			]
+		})
+
+		var app = new Vue({
+			router
+		}).$mount('#app')
+	</script>
+</body>
+</html>

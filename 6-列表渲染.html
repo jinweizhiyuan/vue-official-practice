@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>列表渲染</title>
+	<script type="text/javascript" src="http://cdn.jsdelivr.net/npm/vue"></script>
+	<style type="text/css">
+		[id^=app] {
+			border: 2px dashed black;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<h1>数组更新检测</h1>
+		<ol>
+			<li>变异方法 push pop unshift shift reverse sort</li>
+			<li>替换数组</li>
+			<li>注意事项： 1.vm.items[indexofItem]=newValue 2.vm.items.length=newLength</li>
+		</ol>
+		<button v-on:click.prevent="variation">增加一项元素 变异</button>
+		<button v-on:click.prevent="replace">替换数组</button>
+		<ul>
+			<li v-for="(item, index) in items">
+				{{parentMessage}} - {{index}} - {{item}}
+			</li>
+		</ul>
+	</div>
+
+	<div id="app2">
+		<h1>对象更改检测注意事项</h1>
+		<ol>
+			<li>Vue不能动态添加根级别的响应式属性，可能用Vue.set</li>
+			<li>为已有对象赋予多个新属性，使用Object.assign或_.extend，创建一个新属性</li>
+		</ol>
+		<button v-on:click.prevent="set">修改属性</button>
+		<button v-on:click.prevent="mutiSet">修改多个属性</button>
+		<ul>
+			<li v-for="(value, key, index) in object">
+				{{key}} - {{value}} - {{index}}
+			</li>
+		</ul>
+	</div>
+
+	<div id="app3">
+		<h1>显示过滤/排序结果</h1>
+		<div>原始数组 {{numbers}}</div>
+		<div>显示偶数</div>
+		<ul>
+			<li v-for="n in evenNumbers">{{n}}</li>
+		</ul>
+	</div>
+
+	<div id="app4">
+		h1{一段取值范围}
+		<span v-for="n in 10">{{ n }} </span>
+	</div>
+
+	<script>
+		var app = new Vue({
+			el: '#app',
+			data: {
+				parentMessage: 'Parent',
+				items: [
+					{message: 'Foo'},
+					{message: 'Bar'}
+				]
+			},
+			methods: {
+				variation:function() {
+					this.items.push({
+						message: 'Haha'
+					});
+				},
+				replace: function() {
+					this.items = [{message: 'new'}]
+				}
+			}
+		});
+
+		var app2 = new Vue({
+			el: '#app2',
+			data: {
+				object: {
+					firstName: 'John',
+					lastName: 'Doe',
+					age: 30
+				}
+			},
+			methods: {
+				set: function() {
+					this.$set(this.object, 'firstName', 'Haha');
+				},
+				mutiSet: function() {
+					this.object = Object.assign({}, this.object, {school: 'Anyan Normal University', department: 'School of Computer & Information Engineering'});
+				}
+			}
+		});
+
+		var app3 = new Vue({
+			el: '#app3',
+			data: {
+				numbers: [1,2,3,4,5]
+			},
+			computed: {
+				evenNumbers: function() {
+					return this.numbers.filter(function(number) {
+						return number % 2 == 0;
+					});
+				}
+			}
+		});
+
+		var app4 = new Vue({
+			el: '#app4'
+		});
+	</script>
+</body>
+</html>
